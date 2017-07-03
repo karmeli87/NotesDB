@@ -1,0 +1,36 @@
+<div class="row">
+    <div class="col-md-12">
+        <form id="medicalSearch" method="get" asp-action="FindResults" asp-controller="Search">
+            <div class="row">
+                <div class="col-md-12">
+                  
+                    <div class="input-group">
+                        <span class="input-group-addon">Ask</span>
+                        <input type="text" class="form-control" name="content" placeholder="Ask human like question">
+                    </div>  
+                </div>
+                
+                
+            </div>
+            <div class="row" style="padding-top: 20px">
+                <div class="col-md-12">
+                    <div class="input-group">
+                        <span class="input-group-addon">Tags</span>
+                        <input type="text" class="form-control Tags" autocomplete="off" onclick="GetLaizyTags(this.value)" onkeyup="GetLaizyTags(this.value)" placeholder="Enter tags" name="tags">
+                        <div class="dropdown" style="padding-bottom:34px">
+                            <ul class="dropdown-menu laizyTags" onfocusout="HideDropdown()" aria-labelledby="dropdownMenu1"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="padding-top: 20px">
+                <div class="col-md-12" align="center">
+                    <div class="input-group">
+                        <button type="submit" class="btn btn-default">Search</button>
+
+                    </div>
+                </div>
+            </div>
+            </form>
+    </div>
+</div>

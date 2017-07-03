@@ -1,0 +1,46 @@
+@using NotesDB.Models
+@model IList<MedicalEntry>
+
+<div class="row">
+<div class="col-md-12">
+    <h2>Showing Results</h2>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Title</th>
+                <th>Tags</th>
+                <th>Publish date</th>
+                <th>Has Images</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (MedicalEntry entry in Model)
+            {
+                <tr>
+                    @{
+                        var titleStr = entry.Title;
+                        if (entry.Title.Length > 40)
+                        {
+                            titleStr = titleStr.Substring(0, 37) + "...";
+                        }
+
+                        var tagsString = string.Join(",", entry.Tags);
+                        if (tagsString.Length > 50)
+                        {
+                            tagsString = tagsString.Substring(0, 47) + "...";
+                        }
+                    }
+                    <td title = "@Html.Raw(entry.Title)">@Html.ActionLink(titleStr, "edit", "TextEditor", new { id = @entry.Id }, null)</td>
+                    <td title="@Html.Raw(string.Join(",", entry.Tags))">@tagsString</td>
+                    <td>@entry.PostedOn</td>
+                    <td>
+                        <span class="glyphicon glyphicon-ok" aria-hidden="true" style="text-align: center; display: @(entry.Images?.Count > 0 ? "block" : "none")"></span>
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true" style="text-align: center;display: @(entry.Images?.Count == 0 ? "block" : "none")"></span>
+                    </td>
+                </tr>
+            }
+        </table>
+        </div>
+    </div>
+</div>

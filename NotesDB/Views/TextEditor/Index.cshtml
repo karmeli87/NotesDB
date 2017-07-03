@@ -1,0 +1,136 @@
+@model NotesDB.Models.MedicalEntry
+<div class="row">
+    <div class="col-md-12">
+        <div class="alert alert-danger alert-dismissable fade in" id="not-saved-alert" style="display:none">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            <strong>Danger!</strong> Your changes were NOT saved!
+        </div>
+        <form method="post" asp-action="Create" asp-controller="TextEditor" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-md-2">
+                    <div class="input-group">
+                        <input type="hidden" name="Id" value="@Model.Id" asp-for="Id">
+                        <button onclick="clicked = true" type="submit" class="btn btn-info btn-block">Save</button>
+                    </div>                 
+                </div>
+                <div class="col-md-10">
+                    <div class="input-group">
+                        <span class="input-group-addon">Title</span>
+                        <input type="text" class="form-control" value="@Model.Title" id="Title" placeholder="Title" asp-for="Title" required>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="padding-top: 20px">
+                <div class="col-md-12">
+                    <div class="input-group">
+                        <span class="input-group-addon">Tags</span>
+                        <input type="text" class="form-control Tags" autocomplete="off" onclick="GetLaizyTags(this.value)" onkeyup="GetLaizyTags(this.value)" value="@String.Join(",", Model.Tags ?? new string[] {})" placeholder="Enter tags" asp-for="Tags" required>
+                        <div class="dropdown" style="padding-bottom:34px">
+                            <ul class="dropdown-menu laizyTags" onfocusout="HideDropdown()" aria-labelledby="dropdownMenu1">
+                            </ul>
+                        </div>                   
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="padding-top: 20px">
+                <div class="col-md-12">
+                    <textarea asp-for="Content"></textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <label class="control-label">Select File</label>
+                    <input id="input-files" name="images" type="file" multiple class="file-loading" data-show-upload="false" data-show-caption="true">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+        var clicked = false;
+        var oldContent = null;
+
+        if ('@string.IsNullOrEmpty(Model.Content).ToString().ToLower()' === 'false' && '@string.IsNullOrEmpty(Model.Id).ToString().ToLower()' === 'true'){
+            $('#not-saved-alert').show();
+        }
+
+        function getText() {
+            return $("iframe").contents().find("#tinymce > p").text();
+        }
+
+        $(window).bind('beforeunload', function (data) {
+            if (clicked == true)
+                return undefined;
+            if (oldContent === getText())
+                return undefined;
+            return true;
+        });
+
+        // with plugin options
+        $("#input-files").fileinput({
+            'previewFileType': 'any',
+            initialPreview: [
+                @{ var i = 0;}
+                @foreach(var image in Model.Images)
+                {
+                    <text>
+                        "@image.Value.Path"
+                    </text>
+                     if (i < @Model.Images.Count - 1)
+                     {
+                        <text>,</text>
+                     }
+                    i++;
+                }
+            ],
+            overwriteInitial: false,
+            initialPreviewAsData: true,
+            initialPreviewConfig: [
+            @{ i = 0;}
+            @foreach (var image in Model.Images)
+                {
+                    <text>
+                        {
+                            caption:  '@image.Value.Name',
+                            size:  '@image.Value.Size',
+                            key: '@Model.Id',
+                            extra:{name:'@image.Value.Name'}
+                        }
+                    </text>
+                    if (i < @Model.Images.Count - 1)
+                    {
+                        <text>,</text>
+                    }
+                    i++;
+                }
+
+            ],
+
+            'deleteUrl':'DeleteAttachment'
+        });
+
+        tinymce.init({
+            setup: function (ed) {
+                ed.on('init', function (args) {
+                    oldContent = getText();
+                });
+            },
+            selector: 'textarea',
+            theme: 'modern',
+            plugins: [
+                'advlist autolink link image lists charmap print preview hr anchor pagebreak spellchecker',
+                'searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking',
+                'save table contextmenu directionality template paste textcolor autoresize'
+            ],
+            autoresize_min_height: 300,
+            content_css: 'css/content.css',
+            toolbar: 'insertfile undo redo | bold italic forecolor backcolor charmap | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image'
+        });
+        tinymce.activeEditor.setContent("@Model.Content");
+
+    </script>
+}
+

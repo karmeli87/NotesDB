@@ -1,0 +1,17 @@
+{
+  "name": "asp.net",
+  "private": true,
+  "dependencies": {
+    "jquery": "2.2.0",
+    "jquery-validation": "1.14.0",
+    "jquery-validation-unobtrusive": "3.2.6",
+    "tinymce": "4.5.7",
+    "bootstrap-select": "v1.12.2",
+    "bootstrap": "v3.3.7",
+    "bootstrap-fileinput": "v4.3.9",
+    "jsziptools": "v2.4.7"
+  },
+  "resolutions": {
+    "bootstrap": "v4.0.0-alpha.6"
+  }
+}
