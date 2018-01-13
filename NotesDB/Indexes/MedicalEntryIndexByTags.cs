@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using NotesDB.Models;
 using Raven.Client.Documents.Indexes;
-using Raven.Client.Documents.Linq.Indexing;
 
 namespace NotesDB.Indexes
 {
@@ -15,10 +14,10 @@ namespace NotesDB.Indexes
                     entry.Tags,
                     entry.Title,
                     entry.PostedOn,
-                    Content = entry.Content.StripHtml()
+                    //Content = entry.Content.StripHtml()
                 };
-            Indexes.Add(x=>x.Id,FieldIndexing.NotAnalyzed);
-            Indexes.Add(x=>x.Content,FieldIndexing.Analyzed);
+            Indexes.Add(x=>x.Id,FieldIndexing.No);
+            Indexes.Add(x=>x.Content,FieldIndexing.Default);
             //Analyzers.Add(x=>x.Content, typeof(RussianAnalyzer).AssemblyQualifiedName);
         }
     }

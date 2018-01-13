@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Raven.Client.Documents.Smuggler;
@@ -32,9 +30,8 @@ namespace NotesDB.Controllers
         {
             string path = Environment.GetEnvironmentVariable("LocalAppData");
             var fileName = Path.Combine(path, type + "_Backup.ravendbdump");
-            await Store.Smuggler.ExportAsync(new DatabaseSmugglerOptions
+            await Store.Smuggler.ForDatabase(DbName).ExportAsync(new DatabaseSmugglerExportOptions
             {
-                Database = DbName,
                 OperateOnTypes = type,
             }, fileName);
 

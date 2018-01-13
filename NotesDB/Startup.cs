@@ -7,8 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NotesDB.Indexes;
 using Raven.Client.Documents;
-using Raven.Client.Server;
-using Raven.Client.Server.Operations;
+using Raven.Client.ServerWide;
+using Raven.Client.ServerWide.Operations;
 
 namespace NotesDB
 {
@@ -30,7 +30,7 @@ namespace NotesDB
                     Urls = new []{Url},
                 };
                 Store.Initialize();
-                await Store.Admin.Server.SendAsync(new CreateDatabaseOperation(new DatabaseRecord(DbName)));
+                await Store.Maintenance.Server.SendAsync(new CreateDatabaseOperation(new DatabaseRecord(DbName)));
 
                 var index = new MedicalEntryIndexByTags();
                 var index2 = new MedicalEntryTagCounterIndex();
@@ -87,7 +87,7 @@ namespace NotesDB
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseBrowserLink();
+               // app.UseBrowserLink();
             }
             else
             {

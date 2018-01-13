@@ -31,7 +31,7 @@ namespace NotesDB.Controllers
                     var entry = await session.LoadAsync<MedicalEntry>(id);
                     entry.Id = id;
 
-                    var names = session.Advanced.GetAttachmentNames(entry);
+                    var names = session.Advanced.Attachments.GetNames(entry);
                     if (names.Length > 0)
                     {
                         if (entry.Images == null)
@@ -129,7 +129,7 @@ namespace NotesDB.Controllers
 
                     var stream = file.OpenReadStream();
                     streams.Add(stream);
-                    session.Advanced.StoreAttachment(entity.Id,file.FileName,stream,file.ContentType);
+                    session.Advanced.Attachments.Store(entity.Id,file.FileName,stream,file.ContentType);
                 }
             }
             return streams;
@@ -142,7 +142,7 @@ namespace NotesDB.Controllers
             var id = collection["key"];
             using (var session = Store.OpenAsyncSession())
             {
-                session.Advanced.DeleteAttachment(id,name);
+                session.Advanced.Attachments.Delete(id,name);
                 await session.SaveChangesAsync();
             }
             return "{}";

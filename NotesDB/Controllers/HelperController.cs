@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using NotesDB.Models;
 using Microsoft.AspNetCore.Mvc;
-using Raven.Client.Documents.Attachments;
-using Raven.Client.Documents.Operations;
-using Raven.Client.Documents.Smuggler;
 
 namespace NotesDB.Controllers
 {
@@ -47,7 +41,7 @@ namespace NotesDB.Controllers
         {
             using (var session = Store.OpenAsyncSession())
             {
-                using (var res = await session.Advanced.GetAttachmentAsync(id, name))
+                using (var res = await session.Advanced.Attachments.GetAsync(id, name))
                 {
                     if (res == null)
                     {
