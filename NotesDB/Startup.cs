@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NotesDB.Indexes;
 using Raven.Client.Documents;
+using Raven.Client.Exceptions;
 using Raven.Client.ServerWide;
 using Raven.Client.ServerWide.Operations;
 
@@ -22,25 +23,25 @@ namespace NotesDB
 
         public static async Task InitializeDb()
         {
+            Store = new DocumentStore
+            {
+                Database = DbName,
+                Urls = new []{Url},
+            };
+            Store.Initialize();
             try
             {
-                Store = new DocumentStore
-                {
-                    Database = DbName,
-                    Urls = new []{Url},
-                };
-                Store.Initialize();
                 await Store.Maintenance.Server.SendAsync(new CreateDatabaseOperation(new DatabaseRecord(DbName)));
-
-                var index = new MedicalEntryIndexByTags();
-                var index2 = new MedicalEntryTagCounterIndex();
-                index.Execute(Store);
-                index2.Execute(Store);
             }
-            catch (Exception e)
+            catch(ConcurrencyException)
             {
-                //
+                // ingnore
             }
+
+            var index = new MedicalEntryIndexByTags();
+            var index2 = new MedicalEntryTagCounterIndex();
+            index.Execute(Store);
+            index2.Execute(Store);
         }
 
         public Startup(IHostingEnvironment env)

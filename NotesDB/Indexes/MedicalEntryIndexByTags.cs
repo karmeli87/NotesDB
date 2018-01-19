@@ -16,8 +16,8 @@ namespace NotesDB.Indexes
                     entry.PostedOn,
                     //Content = entry.Content.StripHtml()
                 };
-            Indexes.Add(x=>x.Id,FieldIndexing.No);
-            Indexes.Add(x=>x.Content,FieldIndexing.Default);
+           // Indexes.Add(x=>x.Id,FieldIndexing.No);
+            //Indexes.Add(x=>x.Content,FieldIndexing.Default);
             //Analyzers.Add(x=>x.Content, typeof(RussianAnalyzer).AssemblyQualifiedName);
         }
     }

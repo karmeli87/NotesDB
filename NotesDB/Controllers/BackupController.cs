@@ -8,9 +8,13 @@ namespace NotesDB.Controllers
 {
     public class BackupController : RavenController
     {
+        private static Task _authTask;
         public IActionResult Index()
         {
-            GoogleApi.TryAuthenticateAsync();
+            if (_authTask == null || _authTask.IsCompleted)
+            {
+                _authTask = GoogleApi.TryAuthenticateAsync();
+            }
             return View();
         }
 
@@ -23,6 +27,7 @@ namespace NotesDB.Controllers
         [HttpGet]
         public async Task CloudBackup(string path)
         {
+            await _authTask;
             await GoogleApi.Upload(path);
         }
 

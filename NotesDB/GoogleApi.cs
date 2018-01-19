@@ -46,7 +46,6 @@ namespace NotesDB
                 ApplicationName = Startup.AppName,
                 ApiKey = Startup.Api
             });
-
         }
 
 
@@ -54,7 +53,7 @@ namespace NotesDB
         {
             if (_service == null)
             {
-                throw new AuthenticationException();
+                throw new AuthenticationException("Service is null");
             }
 
             var fn = Path.GetFileName(path);
@@ -65,28 +64,41 @@ namespace NotesDB
                 Name = fn,
                 MimeType = "application/octet-stream",
             };
-            
-            using (var stream = new FileStream(path, FileMode.Open))
+            var fileInfo = new FileInfo(path);
+            using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
+                ResumableUpload request;
                 if (id == null)
                 {
-                    var request = _service.Files.Create(fileToUpload, stream, "application/octet-stream");
-                    request.Fields = "id";
-                    //request.ResponseReceived += MakeShared;
-                    var res = await request.UploadAsync();
-                    if (res.Status != UploadStatus.Completed)
-                    {
-                        throw new BadRequestException(res.Exception.Message);
-                    }
+                    request = _service.Files.Create(fileToUpload, stream, "application/octet-stream");
                 }
                 else
                 {
-                    var request = _service.Files.Update(fileToUpload, id, stream, "application/octet-stream");
-                    var res = await request.UploadAsync();
-                    if (res.Status != UploadStatus.Completed)
-                    {
-                        throw new BadRequestException(res.Exception.Message);
-                    }
+                    request = _service.Files.Update(fileToUpload, id, stream, "application/octet-stream");
+                }
+                await Upload(request, fileInfo);
+            }
+        }
+
+        private static async Task Upload(ResumableUpload request, FileInfo fileInfo)
+        {
+            while (true)
+            {
+                IUploadProgress res = null;
+                try
+                {
+                    res = await request.ResumeAsync();
+                }
+                catch (TaskCanceledException)
+                {
+                    //Console.WriteLine($"Sent {res?.BytesSent ?? 0 / fileInfo.Length * 100} %");
+                    continue;
+                }
+                if (res.Status == UploadStatus.Completed)
+                    break;
+                if (res.Status == UploadStatus.Failed)
+                {
+                    throw new BadRequestException(res.Exception.Message);
                 }
             }
         }
