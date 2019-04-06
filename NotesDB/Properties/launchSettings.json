@@ -19,7 +19,6 @@
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_preventHostingStartup": "true",
         "ASPNETCORE_ENVIRONMENT": "Production"
       }
     }

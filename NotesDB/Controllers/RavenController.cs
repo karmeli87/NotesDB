@@ -9,7 +9,6 @@ namespace NotesDB.Controllers
 {
     public class RavenController : Controller
     {
-        public static readonly string DbName = "MedicalDB";
         public static DocumentStore Store = Startup.Store;
         
         public async Task<IEnumerable<string>> GetTagTerms(string startingWith, int pageSize)

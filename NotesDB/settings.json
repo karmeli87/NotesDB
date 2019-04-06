@@ -1,7 +1,7 @@
 ﻿{
-  "url": "http://4.live-test.ravendb.net:80",
+  "url": "https://a.medicaldb.ravendb.community:4433",
   "db": "MedicalDB",
   "google-api-key": "AIzaSyDk3zt_Dyel-7Z616nzt3pjoE-bG-QzqqM",
-  "google-app": "MedicalDB" 
+  "google-app": "MedicalDB"
 }
 

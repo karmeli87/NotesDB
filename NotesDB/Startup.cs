@@ -1,12 +1,16 @@
 ﻿using System;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NotesDB.Controllers;
 using NotesDB.Indexes;
 using Raven.Client.Documents;
+using Raven.Client.Documents.Operations.Backups;
+using Raven.Client.Documents.Operations.OngoingTasks;
 using Raven.Client.Exceptions;
 using Raven.Client.ServerWide;
 using Raven.Client.ServerWide.Operations;
@@ -26,20 +30,48 @@ namespace NotesDB
             Store = new DocumentStore
             {
                 Database = DbName,
-                Urls = new []{Url},
+                Urls = new[] {Url},
+                Certificate = new X509Certificate2(@"C:\Work\NotesDB\Esty\Esty.pfx", (string)null, X509KeyStorageFlags.MachineKeySet)
             };
             Store.Initialize();
             try
             {
                 await Store.Maintenance.Server.SendAsync(new CreateDatabaseOperation(new DatabaseRecord(DbName)));
             }
-            catch(ConcurrencyException)
+            catch
             {
-                // ingnore
+                // ignore
+            }
+
+            try
+            {
+                var ongoingTasksInfo = new GetOngoingTaskInfoOperation(Backup.TaskId, OngoingTaskType.Backup);
+                var taskInfo = await Store.Maintenance.ForDatabase(DbName).SendAsync(ongoingTasksInfo);
+                if (taskInfo == null)
+                {
+                    var config = new PeriodicBackupConfiguration()
+                    {
+                        LocalSettings = new LocalSettings
+                        {
+                            FolderPath = Backup.LocalRootFolder
+                        },
+                        FullBackupFrequency = "0 2 * * *",
+                        BackupType = BackupType.Backup,
+                        Name = "BackupTask",
+                        TaskId = Backup.TaskId,
+                    };
+                    var operation = new UpdatePeriodicBackupOperation(config);
+                    await Store.Maintenance.SendAsync(operation);
+                }
+            }
+            catch
+            {
+                // ignore
             }
 
             var index = new MedicalEntryIndexByTags();
             var index2 = new MedicalEntryTagCounterIndex();
+
             index.Execute(Store);
             index2.Execute(Store);
         }
@@ -65,9 +97,9 @@ namespace NotesDB
 
             InitializeDb().ContinueWith(_ =>
             {
-                var config = (ConfigurationRoot)o;
+                var config = (ConfigurationRoot) o;
                 config.GetReloadToken().RegisterChangeCallback(LoadConfig, o);
-            });            
+            });
         }
 
         public IConfigurationRoot Configuration { get; }
@@ -84,7 +116,6 @@ namespace NotesDB
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -94,19 +125,14 @@ namespace NotesDB
             {
                 app.UseExceptionHandler("/Home/Error");
             }
-
             app.UseStaticFiles();
-
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}");
             });
-
             applicationLifetime.ApplicationStopping.Register(Stop);
-
-            
         }
 
         public void Stop()
