@@ -25,6 +25,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
     <PackageReference Include="RavenDB.Client" Version="4.1.4" />
+    <PackageReference Include="RavenDB.Embedded" Version="4.1.4" />
   </ItemGroup>
 
 </Project>

@@ -1,5 +1,5 @@
 ﻿{
-  "url": "https://a.medicaldb.ravendb.community:4433",
+  "url": "http://localhost:1990",
   "db": "MedicalDB",
   "google-api-key": "AIzaSyDk3zt_Dyel-7Z616nzt3pjoE-bG-QzqqM",
   "google-app": "MedicalDB"

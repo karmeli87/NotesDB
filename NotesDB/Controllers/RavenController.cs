@@ -9,7 +9,7 @@ namespace NotesDB.Controllers
 {
     public class RavenController : Controller
     {
-        public static DocumentStore Store = Startup.Store;
+        public static IDocumentStore Store = Startup.Store;
         
         public async Task<IEnumerable<string>> GetTagTerms(string startingWith, int pageSize)
         {

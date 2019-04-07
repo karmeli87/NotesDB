@@ -12,7 +12,10 @@ namespace NotesDB
             var host = new WebHostBuilder()
                 .UseKestrel(o =>
                 {
-                    o.Listen(IPAddress.Loopback,5000);
+                    o.Listen(IPAddress.Parse("192.168.1.217"),5000, listenOptions =>
+                        {
+                            listenOptions.UseHttps(@"C:\Users\Karmel\Downloads\RavenDB-4.1.4-windows-x64\Server\cluster.server.certificate.medicaldb.pfx");
+                        });
                 })
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseIISIntegration()

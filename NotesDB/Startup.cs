@@ -1,6 +1,4 @@
-﻿using System;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -11,15 +9,15 @@ using NotesDB.Indexes;
 using Raven.Client.Documents;
 using Raven.Client.Documents.Operations.Backups;
 using Raven.Client.Documents.Operations.OngoingTasks;
-using Raven.Client.Exceptions;
 using Raven.Client.ServerWide;
 using Raven.Client.ServerWide.Operations;
+using Raven.Embedded;
 
 namespace NotesDB
 {
     public class Startup
     {
-        public static DocumentStore Store;
+        public static IDocumentStore Store;
         public static string Url = "";
         public static string DbName = "";
         public static string Api = "";
@@ -27,13 +25,8 @@ namespace NotesDB
 
         public static async Task InitializeDb()
         {
-            Store = new DocumentStore
-            {
-                Database = DbName,
-                Urls = new[] {Url},
-                Certificate = new X509Certificate2(@"C:\Work\NotesDB\Esty\Esty.pfx", (string)null, X509KeyStorageFlags.MachineKeySet)
-            };
-            Store.Initialize();
+            Store = EmbeddedServer.Instance.GetDocumentStore(DbName);
+            //Store.Initialize();
             try
             {
                 await Store.Maintenance.Server.SendAsync(new CreateDatabaseOperation(new DatabaseRecord(DbName)));
@@ -94,6 +87,13 @@ namespace NotesDB
             DbName = Configuration["db"];
             Api = Configuration["google-api-key"];
             AppName = Configuration["google-app"];
+
+            EmbeddedServer.Instance.StartServer(new ServerOptions
+            {
+                AcceptEula = true,
+                ServerUrl = Url,
+                DataDirectory = @"C:\Work\NotesDB\RavenData"
+            });
 
             InitializeDb().ContinueWith(_ =>
             {
